@@ -31,17 +31,17 @@ Each model is placed in a pipeline with StandardScaler. Scaling centers each inp
 
 ### 4- Setting and optimizing the models
 Placing the scaler inside each pipeline ensures that it is fitted only on the training portion of each cross-validation fold. The validation observations are then transformed using those training statistics. The following models are implemented:
-  - Linear regression: The program evaluates linear regression as the baseline using five-fold cross-validation on the training set. In each fold, the model is fitted on four parts and validated on the remaining part. Training and validation RMSE and R² are averaged across the five folds.
-  - Polynomial regression: The pipeline includes an additional PolynomialFeatures term, which creates powers and interaction terms before linear regression is fitted. GridSearchCV is used to evaluate polynomial degrees from 1 to 5 using five-fold cross-validation. It records training and validation RMSE and R² for each degree, then selects the degree with the lowest mean validation RMSE. The program also extracts the intercept and weights of the best polynomial model. These weights help examine how individual inputs, squared terms, and interactions contribute to predicted growth.
-  - kNN regression: GridSearchCV evaluates neighbor counts from 1 to 30 with both uniform and distance weighting, giving 60 configurations. Each configuration is evaluated using five-fold cross-validation. The program records training and validation RMSE and R², then selects the configuration with the lowest mean validation RMSE.
+  - **Linear regression**: The program evaluates linear regression as the baseline using five-fold cross-validation on the training set. In each fold, the model is fitted on four parts and validated on the remaining part. Training and validation RMSE and R² are averaged across the five folds.
+  - **Polynomial regression**: The pipeline includes an additional PolynomialFeatures term, which creates powers and interaction terms before linear regression is fitted. GridSearchCV is used to evaluate polynomial degrees from 1 to 5 using five-fold cross-validation. It records training and validation RMSE and R² for each degree, then selects the degree with the lowest mean validation RMSE. The program also extracts the intercept and weights of the best polynomial model. These weights help examine how individual inputs, squared terms, and interactions contribute to predicted growth.
+  - **kNN regression**: GridSearchCV evaluates neighbor counts from 1 to 30 with both uniform and distance weighting, giving 60 configurations. Each configuration is evaluated using five-fold cross-validation. The program records training and validation RMSE and R², then selects the configuration with the lowest mean validation RMSE.
 
 For all models, lower RMSE indicates smaller prediction errors, while higher R² indicates better performance relative to a mean-based prediction. The program reverses RMSE signs to positive values when reporting errors in the terminal and figures.
 
 ### 5- Final evaluation and code output
 With refit="rmse", each search automatically refits its best pipeline on the full training set. The script then uses the selected model to assess the final performance of the reserved test set observations by determining RMSE and R2. For this dataset, kNN was selected as the optimal model fit, with a justification presented in the analysis below.
 The program prints the main results and saves the search results in the tables directory. It also saves two PNG validation curves in the figures directory for:
-  - Polynomial regression: [Polynomial degree vs  RMSE]
-  - kNN regression: [ number_of_neighbors(k) vs RMSE] for both uniform and distance.
+  - **Polynomial regression**: [Polynomial degree vs  RMSE]
+  - **kNN regression**: [Number_of_neighbors(k) vs RMSE] for both uniform and distance weighting.
 
 ## Analysis
 The goal is to predict specific growth rate from four culture conditions. The dataset contains simulated data, so the results describe patterns in this dataset rather than a validated model for a particular cell line. The available ranges are the following:
@@ -77,7 +77,7 @@ The model has the highest validation RMSE among these configurations which indic
 This model improved validation RMSE to approximately 0.157 d⁻¹. Its validation R² of 0.185 also indicates an improvement over the linear model, although predictive performance remains limited. With four original inputs, degree 2 generates 14 polynomial features, excluding the intercept. This adds flexibility while keeping the model relatively small. Squared terms allow curvature, with pH² having the largest coefficient magnitude (−0.061), followed by temperature² (−0.020). Both coefficients are negative, indicating downward curvature in predicted growth. Interaction terms, particularly glucose × lactate and temperature × pH, also contribute to predictions, allowing the effect of one variable to depend on another.
 
    
- <img src="figures/validation_curve_polynomial.png" alt="Polynomial validation curve" width="400">
+ <img src="figures/validation_curve_polynomial.png" alt="Polynomial validation curve" width="450">
 
 Figure 1. Training and validation RMSE as polynomial degree increases.
 
@@ -88,7 +88,7 @@ Training RMSE continues to decrease as degree increases. This growing gap indica
 The fitted model with 10 neighbors and distance weighting has the lowest mean validation RMSE, approximately 0.155 d⁻¹. This model enables the prediction of growth from nearby observations in the scaled input space, without requiring a specific equation for the relationship between culture conditions and growth. This model had the highest R² value from the tested model, but it still explained only 23.7% of the variation in growth rate, indicating limited predictive performance.
 From the 3 models tested, kNN fitted the dataset best for the training set. However, the advantage over degree-2 polynomial regression is small: approximately 0.002 d⁻¹ in RMSE. The fold-to-fold standard deviations in validation RMSE are approximately 0.011 d⁻¹ for the selected kNN model and 0.016 d⁻¹ for degree-2 regression. These values do not establish statistical significance. Therefore, degree-2 regression remains a reasonable alternative, especially when a fitted equation is useful.
 
-  <img src="figures/validation_curve_knn.png" alt="kNN validation curves" width="400">
+  <img src="figures/validation_curve_knn.png" alt="kNN validation curves" width="450">
 
 Figure 2. Training and validation RMSE for uniform and distance weighting across neighbor counts.
 
