@@ -86,10 +86,10 @@ Uniform weighting with 10 neighbors gives a similar validation RMSE of approxima
 
 ### Final test performance
 The selected kNN model refitted on training observations and evaluated on test observations resulted in the following performance metrics:
-|RMSE (d⁻¹)                |0.156|
-|--------------------------|-----|
-|R²                        |0.394|
-|--------------------------|-----|
+| Metric     | Value |
+|------------|-------|
+| RMSE (d⁻¹) | 0.156 |
+| R²         | 0.394 |
 The test RMSE is close to the mean validation RMSE, which is encouraging for this split. However, an error of around 0.156 d⁻¹ is substantial compared with the dataset's mean growth rate of approximately 0.283 d⁻¹. The test R² indicates that the model explains about 39% of the variation in test growth rates. Its predictive ability is useful but limited.
 Test R² is higher than mean validation R². These scores use different observations and different reference variation, so they do not have to match. One favorable test split does not establish strong general performance. Repeating the evaluation with other splits or an independent dataset would provide stronger evidence.
 
