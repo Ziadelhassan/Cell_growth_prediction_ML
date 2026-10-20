@@ -17,6 +17,18 @@ This Python project predicts the specific growth rate of cells from temperature,
 - pandas: 3.0.5
 - scikit-learn: 1.9.0
 
+## How to run
+
+With Conda installed, download or clone this repository and open a terminal in the project folder. Run:
+
+```bash
+conda env create -f environment.yaml
+conda activate chg4360c-fall2026
+python main.py
+```
+
+If the environment already exists, skip the first command. The script prints model results and saves tables and figures in their respective folders.
+
 ## Code design
 
 ### 1- Data loading and variable selection
@@ -86,7 +98,7 @@ Training RMSE continues to decrease as degree increases. This growing gap indica
 
 #### kNN model:
 The fitted model with 10 neighbors and distance weighting has the lowest mean validation RMSE, approximately 0.155 d⁻¹. This model enables the prediction of growth from nearby observations in the scaled input space, without requiring a specific equation for the relationship between culture conditions and growth. This model had the highest R² value from the tested model, but it still explained only 23.7% of the variation in growth rate, indicating limited predictive performance.
-From the 3 models tested, kNN fitted the dataset best for the training set. However, the advantage over degree-2 polynomial regression is small: approximately 0.002 d⁻¹ in RMSE. The fold-to-fold standard deviations in validation RMSE are approximately 0.011 d⁻¹ for the selected kNN model and 0.016 d⁻¹ for degree-2 regression. These values do not establish statistical significance. Therefore, degree-2 regression remains a reasonable alternative, especially when a fitted equation is useful.
+From the 3 models tested, kNN achieved the lowest mean cross-validation RMSE. However, the advantage over degree-2 polynomial regression is small: approximately 0.002 d⁻¹ in RMSE. The fold-to-fold standard deviations in validation RMSE are approximately 0.011 d⁻¹ for the selected kNN model and 0.016 d⁻¹ for degree-2 regression. These values do not establish statistical significance. Therefore, degree-2 regression remains a reasonable alternative, especially when a fitted equation is useful.
 
   <img src="figures/validation_curve_knn.png" alt="kNN validation curves" width="450">
 
