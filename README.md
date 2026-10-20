@@ -68,7 +68,7 @@ The model has the highest validation RMSE among these configurations which indic
 
   - Degree-2 polynomial regression:
 This model improved validation RMSE to approximately 0.157 d⁻¹. Its validation R² of 0.185 also indicates an improvement over the linear model, although predictive performance remains limited. With four original inputs, degree 2 generates 14 polynomial features, excluding the intercept. This adds flexibility while keeping the model relatively small. Squared terms allow curvature, with pH² having the largest coefficient magnitude (−0.061), followed by temperature² (−0.020). Both coefficients are negative, indicating downward curvature in predicted growth. Interaction terms, particularly glucose × lactate and temperature × pH, also contribute to predictions, allowing the effect of one variable to depend on another.
-![Polynomial validation curve](figures/validation_curve_polynomial.png)
+<img src="figures/validation_curve_polynomial.png" alt="Polynomial validation curve" width="350">
 Figure 1. Training and validation RMSE as polynomial degree increases.
 
 The polynomial validation curve shows why the most complex model is not selected. Mean validation RMSE falls from 0.177 d⁻¹ at degree 1 to 0.157 d⁻¹ at degree 2. It then rises to 0.171, 0.235, and 0.618 d⁻¹ for degrees 3, 4, and 5, respectively.
@@ -77,7 +77,7 @@ Training RMSE continues to decrease as degree increases. This growing gap indica
   - kNN model:
 The fitted model with 10 neighbors and distance weighting has the lowest mean validation RMSE, approximately 0.155 d⁻¹. This model enables the prediction of growth from nearby observations in the scaled input space, without requiring a specific equation for the relationship between culture conditions and growth. This model had the highest R² value from the tested model, but it still explained only 23.7% of the variation in growth rate, indicating limited predictive performance.
 From the 3 models tested, kNN fitted the dataset best for the training set. However, the advantage over degree-2 polynomial regression is small: approximately 0.002 d⁻¹ in RMSE. The fold-to-fold standard deviations in validation RMSE are approximately 0.011 d⁻¹ for the selected kNN model and 0.016 d⁻¹ for degree-2 regression. These values do not establish statistical significance. Therefore, degree-2 regression remains a reasonable alternative, especially when a fitted equation is useful.
-![kNN validation curves](figures/validation_curve_knn.png)
+!<img src="figures/validation_curve_knn.png" alt="kNN validation curves" width="350">
 Figure 2. Training and validation RMSE for uniform and distance weighting across neighbor counts.
 
 A small neighbor count makes predictions sensitive to a few nearby observations, while a count that is too large averages over more observations and smooth out useful local patterns. Ten neighbors provides the best balance among the tested configurations for this split and cross-validation setup.
@@ -91,9 +91,8 @@ The selected kNN model refitted on training observations and evaluated on test o
 | RMSE (d⁻¹) | 0.156 |
 | R²         | 0.394 |
 
-The test RMSE is close to the mean validation RMSE, which is encouraging for this split. However, an error of around 0.156 d⁻¹ is substantial compared with the dataset's mean growth rate of approximately 0.283 d⁻¹. The test R² indicates that the model explains about 39% of the variation in test growth rates. Its predictive ability is useful but limited.
-
-Test R² is higher than mean validation R². These scores use different observations and different reference variation, so they do not have to match. One favorable test split does not establish strong general performance. Repeating the evaluation with other splits or an independent dataset would provide stronger evidence.
+- The test RMSE is close to the mean validation RMSE, which is encouraging for this split. However, an error of around 0.156 d⁻¹ is substantial compared with the dataset's mean growth rate of approximately 0.283 d⁻¹. The test R² indicates that the model explains about 39% of the variation in test growth rates. Its predictive ability is useful but limited.
+- Test R² is higher than mean validation R². These scores use different observations and different reference variation, so they do not have to match. One favorable test split does not establish strong general performance. Repeating the evaluation with other splits or an independent dataset would provide stronger evidence.
 
 ### Culture conditions and prediction reliability
 The polynomial fit suggests that higher growth is favored by intermediate temperature and pH, while higher glucose and lower lactate concentrations contribute positively near the average culture conditions. Lower growth is expected at unfavorable temperature or pH values, or when low glucose and high lactate occur together. However, interactions mean that the effect of each variable depends on the other conditions, so these trends do not establish exact optimal values.
