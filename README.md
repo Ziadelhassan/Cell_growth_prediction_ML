@@ -1,21 +1,24 @@
 # Cell growth prediction using Machine Learning
 This Python project predicts the specific growth rate of cells from temperature, pH, glucose concentration, and lactate concentration data. It compares linear regression, polynomial regression, and k-nearest neighbors regression using a simulated dataset. Cross-validation guides model selection, while a separate test set evaluates the selected model. The program exports tables and figures to support the comparison.
 
-### Highlights
-•   Build regression pipelines for cell growth prediction.
-•   Scale culture variables within cross-validation pipelines.
-•   Optimize polynomial degree and kNN hyperparameters.
-•   Evaluate predictions using RMSE and R².
-•   Export validation curves and model comparison tables.
+## Highlights
 
-### Environment
-•   Python: 3.14.7
-•   Matplotlib: 3.11.0
-•   NumPy: 2.5.2
-•   pandas: 3.0.5
-•   scikit-learn: 1.9.0
+- Build regression pipelines for cell growth prediction.
+- Scale culture variables within cross-validation pipelines.
+- Optimize polynomial degree and kNN hyperparameters.
+- Evaluate predictions using RMSE and R².
+- Export validation curves and model comparison tables.
+
+## Environment
+
+- Python: 3.14.7
+- Matplotlib: 3.11.0
+- NumPy: 2.5.2
+- pandas: 3.0.5
+- scikit-learn: 1.9.0
 
 ## Code design
+
 ### 1- Data loading and variable selection
 The workflow starts when main.py reads datasets/dataset_cell_growth_4factor.csv into a pandas DataFrame. The dataset contains 318 samples. The first column contains the target, specific growth rate in d⁻¹. The remaining columns contain the four features: temperature, pH, glucose concentration, and lactate concentration. The features and target are selected separately and converted to NumPy arrays.
 
@@ -31,6 +34,7 @@ Placing the scaler inside each pipeline ensures that it is fitted only on the tr
   - Linear regression: The program evaluates linear regression as the baseline using five-fold cross-validation on the training set. In each fold, the model is fitted on four parts and validated on the remaining part. Training and validation RMSE and R² are averaged across the five folds.
   - Polynomial regression: The pipeline includes an additional PolynomialFeatures term, which creates powers and interaction terms before linear regression is fitted. GridSearchCV is used to evaluate polynomial degrees from 1 to 5 using five-fold cross-validation. It records training and validation RMSE and R² for each degree, then selects the degree with the lowest mean validation RMSE. The program also extracts the intercept and weights of the best polynomial model. These weights help examine how individual inputs, squared terms, and interactions contribute to predicted growth.
   - kNN regression: GridSearchCV evaluates neighbor counts from 1 to 30 with both uniform and distance weighting, giving 60 configurations. Each configuration is evaluated using five-fold cross-validation. The program records training and validation RMSE and R², then selects the configuration with the lowest mean validation RMSE.
+
 For all models, lower RMSE indicates smaller prediction errors, while higher R² indicates better performance relative to a mean-based prediction. The program reverses RMSE signs to positive values when reporting errors in the terminal and figures.
 
 ### 5- Final evaluation and code output
@@ -41,6 +45,7 @@ The program prints the main results and saves the search results in the tables d
 
 ## Analysis
 The goal is to predict specific growth rate from four culture conditions. The dataset contains simulated data, so the results describe patterns in this dataset rather than a validated model for a particular cell line. The available ranges are the following:
+
 |Variable                  |Minimum|Maximum|
 |--------------------------|-------|-------|
 |Temperature (°C)          |30.0   |42.0   |
@@ -52,10 +57,12 @@ The goal is to predict specific growth rate from four culture conditions. The da
 All models are compared using the same training set with five-fold cross-validation, and compare two performance metrics:
   - RMSE: expresses prediction error in the same units as growth rate and gives greater weight to larger errors.
   - R²: measures how much variation the model explains relative to a mean-based prediction.
+
 Both metrics are needed because a model can improve on a baseline while still making errors that are too large for practical use.
 
 ### Comparison of different models
 The table summarizes cross-validation results for each model. For polynomial regression and kNN, the reported configuration is the one with the lowest mean validation RMSE in its search.
+
 |Model                     |        Configuration         |Mean training RMSE (d⁻¹) |Mean validation RMSE (d⁻¹)|Mean validation R²|
 |--------------------------|------------------------------|------------------------|--------------------------|------------------|
 |Linear regression         | Four scaled inputs           |0.171                   |0.177                     |0.007             |
@@ -101,7 +108,7 @@ The selected kNN model refitted on training observations and evaluated on test o
 
 ### Culture conditions and prediction reliability
 The polynomial fit suggests that higher growth is favored by intermediate temperature and pH, while higher glucose and lower lactate concentrations contribute positively near the average culture conditions. Lower growth is expected at unfavorable temperature or pH values, or when low glucose and high lactate occur together. However, interactions mean that the effect of each variable depends on the other conditions, so these trends do not establish exact optimal values.
-For the selected kNN model, predictions are less reliable for combinations with few nearby training observations, even when each input is within the dataset’s range. Predictions outside the studied ranges are particularly unreliable because kNN relies on existing neighbors and cannot extrapolate trends..
+For the selected kNN model, predictions are less reliable for combinations with few nearby training observations, even when each input is within the dataset’s range. Predictions outside the studied ranges are particularly unreliable because kNN relies on existing neighbors and cannot extrapolate trends.
 
 ### Model advantages and limitations
 The model could help with early screening by providing rough growth estimates and helping prioritize culture conditions for experiments. The workflow’s strengths are its reproducible split, scaling within pipelines, consistent cross-validation, and separate test evaluation. Its main limitations are the small simulated dataset and limited predictive accuracy. These limitations make it a starting point for process investigation, with additional data and validation in the intended culture system needed before using its predictions to guide operating decisions.
