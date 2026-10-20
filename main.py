@@ -48,6 +48,14 @@ columns_view = ["rank_test_rmse","param_polynomialfeatures__degree",
     "mean_test_rmse", "std_test_rmse","mean_train_rmse", "std_train_rmse",
     "mean_test_r2", "mean_train_r2"]
 
+# Examine polynomial model weights
+best_polynomial = model_polynomial_gcsv.best_estimator_
+coefs = best_polynomial["linearregression"].coef_
+intercept = best_polynomial["linearregression"].intercept_
+feature_names = [name.split(" [")[0].replace(" ", "_") for name in features]
+terms = best_polynomial["polynomialfeatures"].get_feature_names_out(feature_names)
+
+
 #============================================
 #   k-nearest neighbors
 #============================================
@@ -81,43 +89,49 @@ test_r2 = r2_score(y_test, y_test_pred)
 # =====================================
 os.makedirs("tables", exist_ok=True)
 
-    #Linear regression
+# Linear regression
 print("\nLinear regression: 5-fold cross-validation")
 print(f"  Train      | RMSE | {linear_train_rmse:.3f} d^-1")
 print(f"  Validation | RMSE | {linear_valid_rmse:.3f} d^-1")
 print(f"  Train      | R²   | {linear_train_r2:.3f}")
 print(f"  Validation | R²   | {linear_valid_r2:.3f}")
 
-    #Polynomial regression
+# Polynomial regression
 print("\nPolynomial regression: 5-fold cross-validation")
 #print(df_polynomial.loc[:, columns_view].to_string(index=False))
 print(" - Best degree:", model_polynomial_gcsv.best_params_["polynomialfeatures__degree"])
 print(f" - Best mean validation RMSE: " f"{-model_polynomial_gcsv.best_score_:.3f} d^-1")
 print(f" - Mean validation R²: " f"{df_polynomial.loc[model_polynomial_gcsv.best_index_, 'mean_test_r2']:.3f}")
 
-#Output a summary table
+    # Output a summary table
 table = df_polynomial.loc[:, columns_view].to_string(index=False, float_format="{:.3f}".format)
 with open(os.path.join("tables", "polynomial_cv_results.txt"), "w") as file:
     file.write(table)
 
-    #k-nearest neighbors
+    # Get polynomial model weights
+print("\nBest polynomial model (standardized inputs):")
+print(f"{targets} =")
+print(f"{intercept:+8.3f}")
+
+for coef, term in zip(coefs, terms):
+    print(f"{coef:+8.3f} * {term.replace(' ', ' * ')}")
+
+# k-nearest neighbors
 print("\nkNN regression: 5-fold cross-validation")
 print(" - Best number of neighbors:", model_knn_gcsv.best_params_["kneighborsregressor__n_neighbors"])
 print(" - Best weights:", model_knn_gcsv.best_params_["kneighborsregressor__weights"])
 print(f" - Best mean validation RMSE: {-model_knn_gcsv.best_score_:.3f} d^-1")
 print(f" - Mean validation R²: " f"{df_knn.loc[model_knn_gcsv.best_index_, 'mean_test_r2']:.3f}")
 
-# Output a summary table
+    # Output a summary table
 table = df_knn.loc[:, columns_view_knn].to_string(index=False, float_format="{:.3f}".format)
 with open(os.path.join("tables", "knn_cv_results.txt"), "w") as file:
     file.write(table)
 
-
-#   Final test evaluation
+# Final test evaluation
 print("\nFinal kNN model: performance of Test set")
 print(f"  Test | RMSE | {test_rmse:.3f} d^-1")
 print(f"  Test | R²   | {test_r2:.3f}")
-
 
 
 # ==========================
@@ -144,7 +158,6 @@ fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(FIG_WIDTH, FIG_HEIGHT),dpi=200,
 
 ax.plot(degrees, rmse_train,label="Train (Polynomial)", color=COLORS[0], linestyle="-")
 ax.plot(degrees, rmse_valid,label="Valid (Polynomial)", color=COLORS[0], linestyle="--")
-
 ax.set_xlabel("Polynomial degree", fontsize=fontsize_xy_label)
 ax.set_ylabel("Growth Rate RMSE [d⁻¹]", fontsize=fontsize_xy_label)
 ax.set_xticks(degrees)
@@ -156,7 +169,6 @@ ax.set_title("Polynomial regression: validation curve", fontsize=14)
 fig.savefig(os.path.join("figures", "validation_curve_polynomial.png"))
 plt.close(fig)
 
-
 # k-Nearest Neighbors
 fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(FIG_WIDTH, FIG_HEIGHT),dpi=200, layout="constrained")
 
@@ -164,11 +176,9 @@ for i, weight in enumerate(param_grid_knn["kneighborsregressor__weights"]):
     mask_weight = (df_knn.loc[:, "param_kneighborsregressor__weights"] == weight)
     df_sub = df_knn.loc[mask_weight, :]
     df_sub = df_sub.sort_values(by="param_kneighborsregressor__n_neighbors", ascending=True)
-
     n_neighbors = df_sub.loc[:, "param_kneighborsregressor__n_neighbors"].to_numpy(dtype=int)
     rmse_train = -df_sub.loc[:, "mean_train_rmse"].to_numpy()
     rmse_valid = -df_sub.loc[:, "mean_test_rmse"].to_numpy()
-
     ax.plot(n_neighbors, rmse_train,label=f"Train (kNN: {weight})", color=COLORS[i], linestyle="-")
     ax.plot(n_neighbors, rmse_valid,label=f"Valid (kNN: {weight})", color=COLORS[i], linestyle="--" )
 
@@ -176,7 +186,7 @@ ax.set_xlabel("k", fontsize=fontsize_xy_label)
 ax.set_ylabel("Growth Rate RMSE [d⁻¹]", fontsize=fontsize_xy_label)
 ax.tick_params(axis="both", which="major", labelsize=fontsize_ticks)
 ax.legend(ncols=1, fontsize=fontsize_legend)
-ax.set_ylim(bottom=0.005)
+ax.set_ylim(bottom=-0.005)
 ax.set_title("kNN regression: validation curves", fontsize=14)
 
 fig.savefig(os.path.join("figures", "validation_curve_knn.png"))
