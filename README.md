@@ -63,20 +63,21 @@ The table summarizes cross-validation results for each model. For polynomial reg
 |kNN regression            |10 neighbors, uniform weights |0.144                   |0.156                     |0.228             |
 |kNN regression            |10 neighbors, distance weights|0.000                   |0.155                     |0.237             |
 
-  - Linear regression:
+  - Linear regression
 The model has the highest validation RMSE among these configurations which indicates the highest prediction error. Its mean validation R² is also close to zero, indicating very limited predictive value. A linear model assumes a constant effect of each input when the others are held fixed. That assumption is restrictive for growth, where favorable conditions usually lie between low and high extremes.
 
-    - Degree-2 polynomial regression:
+  - Degree-2 polynomial regression
 This model improved validation RMSE to approximately 0.157 d⁻¹. Its validation R² of 0.185 also indicates an improvement over the linear model, although predictive performance remains limited. With four original inputs, degree 2 generates 14 polynomial features, excluding the intercept. This adds flexibility while keeping the model relatively small. Squared terms allow curvature, with pH² having the largest coefficient magnitude (−0.061), followed by temperature² (−0.020). Both coefficients are negative, indicating downward curvature in predicted growth. Interaction terms, particularly glucose × lactate and temperature × pH, also contribute to predictions, allowing the effect of one variable to depend on another.
 
-    <img src="figures/validation_curve_polynomial.png" alt="Polynomial validation curve" width="400">
+   
+ <img src="figures/validation_curve_polynomial.png" alt="Polynomial validation curve" width="400">
 
 Figure 1. Training and validation RMSE as polynomial degree increases.
 
 The polynomial validation curve shows why the most complex model is not selected. Mean validation RMSE falls from 0.177 d⁻¹ at degree 1 to 0.157 d⁻¹ at degree 2. It then rises to 0.171, 0.235, and 0.618 d⁻¹ for degrees 3, 4, and 5, respectively.
 Training RMSE continues to decrease as degree increases. This growing gap indicates overfitting: the higher-degree models fit the training observations more closely but predict validation observations less accurately. Degree 2 gives the best validation performance within the tested polynomial range.
 
-  - kNN model:
+  - kNN model
 The fitted model with 10 neighbors and distance weighting has the lowest mean validation RMSE, approximately 0.155 d⁻¹. This model enables the prediction of growth from nearby observations in the scaled input space, without requiring a specific equation for the relationship between culture conditions and growth. This model had the highest R² value from the tested model, but it still explained only 23.7% of the variation in growth rate, indicating limited predictive performance.
 From the 3 models tested, kNN fitted the dataset best for the training set. However, the advantage over degree-2 polynomial regression is small: approximately 0.002 d⁻¹ in RMSE. The fold-to-fold standard deviations in validation RMSE are approximately 0.011 d⁻¹ for the selected kNN model and 0.016 d⁻¹ for degree-2 regression. These values do not establish statistical significance. Therefore, degree-2 regression remains a reasonable alternative, especially when a fitted equation is useful.
 
